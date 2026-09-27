@@ -32,3 +32,7 @@ Weather Inputs
 
 ## Project Status
 Prototype under development for Smart India Hackathon (SIH).
+
+
+## Attention
+all pkl files must put in a folder named models
