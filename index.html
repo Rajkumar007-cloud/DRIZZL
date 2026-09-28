@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MonsoonAI | Regime-Aware Rainfall Forecast</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">🌧</div>
+        <div>
+            <h2>MonsoonAI</h2>
+            <span>AI Rainfall System</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="#dashboard" class="nav-link active">Dashboard</a>
+        <a href="#forecast" class="nav-link">Rainfall Forecast</a>
+        <a href="#regime" class="nav-link">Weather Regime</a>
+        <a href="#heavy" class="nav-link">Heavy Rainfall</a>
+        <a href="#verification" class="nav-link">Verification</a>
+        <a href="#about" class="nav-link">About System</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <p>Organization</p>
+        <strong>Ministry of Earth Sciences</strong>
+        <small>AI/ML Monsoon Forecasting</small>
+    </div>
+
+</aside>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <div>
+            <button id="menuBtn" class="menu-btn">☰</button>
+
+            <h1>Regime-Aware Rainfall Forecast</h1>
+
+            <p>
+                AI-powered post-processing of NWP monsoon rainfall forecasts
+            </p>
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+        </div>
+
+    </header>
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section id="dashboard" class="page">
+
+        <div class="section-heading">
+            <div>
+                <h2>Forecast Overview</h2>
+                <p>AI-based correction of numerical weather prediction rainfall.</p>
+            </div>
+
+            <button class="primary-btn" onclick="runPrediction()">
+                Run AI Prediction
+            </button>
+        </div>
+
+
+        <!-- KPI CARDS -->
+
+        <div class="cards">
+
+            <div class="card">
+                <div class="card-icon blue">☁</div>
+                <div>
+                    <span>Current Regime</span>
+                    <h2 id="currentRegime">Active Monsoon</h2>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon green">🌧</div>
+                <div>
+                    <span>Raw NWP Rainfall</span>
+                    <h2 id="rawRain">72 mm</h2>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon purple">🤖</div>
+                <div>
+                    <span>AI Corrected</span>
+                    <h2 id="correctedRain">91 mm</h2>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon orange">⚠</div>
+                <div>
+                    <span>Heavy Rain Probability</span>
+                    <h2 id="heavyProbability">78%</h2>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- CHART AREA -->
+
+        <div class="grid-2">
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h3>Rainfall Forecast Comparison</h3>
+                        <p>Raw NWP vs AI Post-Processed</p>
+                    </div>
+                </div>
+
+                <canvas id="rainfallChart"></canvas>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h3>Weather Regime Distribution</h3>
+                        <p>Current forecast classification</p>
+                    </div>
+                </div>
+
+                <canvas id="regimeChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= FORECAST ================= -->
+
+    <section id="forecast" class="page">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>District Rainfall Forecast</h2>
+                <p>AI-corrected rainfall prediction by district.</p>
+            </div>
+
+            <select id="districtSelect">
+
+                            <option value="mumbai">Mumbai</option>
+                            <option value="delhi">Delhi</option>
+                            <option value="bangalore">Bangalore</option>
+                            <option value="chennai">Chennai</option>
+                            <option value="kolkata">Kolkata</option>
+                            <option value="hyderabad">Hyderabad</option>
+                            <option value="pune">Pune</option>
+                            <option value="ahmedabad">Ahmedabad</option>
+                            <option value="jaipur">Jaipur</option>
+                            <option value="lucknow">Lucknow</option>
+                            <option value="bhopal">Bhopal</option>
+                            <option value="guwahati">Guwahati</option>
+                            <option value="thiruvananthapuram">Thiruvananthapuram</option>
+                            <option value="bhubaneswar">Bhubaneswar</option>
+                            <option value="raipur">Raipur</option>
+
+                        </select>
+
+        </div>
+
+
+        <div class="forecast-table">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>District</th>
+                        <th>Regime</th>
+                        <th>Raw NWP</th>
+                        <th>AI Forecast</th>
+                        <th>Heavy Rain Probability</th>
+                        <th>Risk</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="forecastTableBody">
+
+                    <tr>
+                        <td>Murshidabad</td>
+                        <td><span class="badge active">Active Monsoon</span></td>
+                        <td>72 mm</td>
+                        <td><strong>91 mm</strong></td>
+                        <td>78%</td>
+                        <td><span class="risk high">High</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Kolkata</td>
+                        <td><span class="badge coastal">Coastal</span></td>
+                        <td>46 mm</td>
+                        <td><strong>58 mm</strong></td>
+                        <td>61%</td>
+                        <td><span class="risk medium">Medium</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Darjeeling</td>
+                        <td><span class="badge oro">Orographic</span></td>
+                        <td>82 mm</td>
+                        <td><strong>108 mm</strong></td>
+                        <td>84%</td>
+                        <td><span class="risk high">High</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Purba Medinipur</td>
+                        <td><span class="badge coastal">Coastal</span></td>
+                        <td>67 mm</td>
+                        <td><strong>79 mm</strong></td>
+                        <td>72%</td>
+                        <td><span class="risk high">High</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Jalpaiguri</td>
+                        <td><span class="badge active">Active Monsoon</span></td>
+                        <td>94 mm</td>
+                        <td><strong>121 mm</strong></td>
+                        <td>89%</td>
+                        <td><span class="risk extreme">Extreme</span></td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= REGIME ================= -->
+
+    <section id="regime" class="page">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Weather Regime Classifier</h2>
+
+                <p>
+                    AI classification of the prevailing monsoon weather regime.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="regime-grid">
+
+                    <div class="regime-card selected">
+
+                        <div class="regime-icon">🌧</div>
+
+                        <h3>Active Monsoon</h3>
+
+                        <p>
+                            Enhanced rainfall activity across large parts of the region.
+                        </p>
+
+                        <strong id="activeConfidence">Confidence: --%</strong>
+
+                    </div>
+
+
+                    <div class="regime-card">
+
+                        <div class="regime-icon">☀</div>
+
+                        <h3>Break Monsoon</h3>
+
+                        <p>
+                            Reduced rainfall activity over central monsoon regions.
+                        </p>
+
+                        <strong id="breakConfidence">Confidence: --%</strong>
+
+                    </div>
+
+
+                    <div class="regime-card">
+
+                        <div class="regime-icon">🌀</div>
+
+                        <h3>Depression / Low</h3>
+
+                        <p>
+                            Rainfall influenced by monsoon lows or depressions.
+                        </p>
+
+                        <strong id="depressionConfidence">Confidence: --%</strong>
+
+                    </div>
+
+                </div>
+
+    </section>
+
+
+    <!-- ================= HEAVY RAINFALL ================= -->
+
+    <section id="heavy" class="page">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Heavy Rainfall Analysis</h2>
+
+                <p>
+                    Probability of rainfall exceeding operational thresholds.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="threshold-panel">
+
+            <div class="threshold-box">
+
+                <span>Heavy Rain</span>
+
+                <h2>64.5 mm+</h2>
+
+                <div class="progress">
+                    <div style="width: 82%"></div>
+                </div>
+
+                <strong>82% Probability</strong>
+
+            </div>
+
+
+            <div class="threshold-box">
+
+                <span>Very Heavy Rain</span>
+
+                <h2>115.6 mm+</h2>
+
+                <div class="progress">
+                    <div style="width: 58%"></div>
+                </div>
+
+                <strong>58% Probability</strong>
+
+            </div>
+
+
+            <div class="threshold-box">
+
+                <span>Extremely Heavy</span>
+
+                <h2>204.5 mm+</h2>
+
+                <div class="progress">
+                    <div style="width: 22%"></div>
+                </div>
+
+                <strong>22% Probability</strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="map-container">
+
+                    <h3>Rainfall Risk Map</h3>
+
+                    <div id="rainfallMap" style="height: 450px; border-radius: 12px;"></div>
+
+                </div>
+
+    </section>
+
+
+    <!-- ================= VERIFICATION ================= -->
+
+    <section id="verification" class="page">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>Forecast Verification</h2>
+
+                <p>
+                    Comparison between raw NWP and AI post-processed forecasts.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="metrics">
+
+            <div class="metric">
+
+                <span>RMSE</span>
+
+                <h2>18.42</h2>
+
+                <small>Lower is better</small>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>ETS</span>
+
+                <h2>0.61</h2>
+
+                <small>Equitable Threat Score</small>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>CSI</span>
+
+                <h2>0.74</h2>
+
+                <small>Critical Success Index</small>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>POD</span>
+
+                <h2>0.81</h2>
+
+                <small>Probability of Detection</small>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>FAR</span>
+
+                <h2>0.18</h2>
+
+                <small>False Alarm Ratio</small>
+
+            </div>
+
+
+            <div class="metric">
+
+                <span>FSS</span>
+
+                <h2>0.69</h2>
+
+                <small>Fractions Skill Score</small>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel verification-chart">
+
+            <h3>Model Skill Comparison</h3>
+
+            <canvas id="verificationChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= ABOUT ================= -->
+
+    <section id="about" class="page">
+
+        <div class="about">
+
+            <h2>About MonsoonAI</h2>
+
+            <p>
+                MonsoonAI is a regime-aware artificial intelligence system
+                designed to improve numerical weather prediction rainfall
+                forecasts over India.
+            </p>
+
+            <h3>Processing Pipeline</h3>
+
+            <div class="pipeline">
+
+                <div>
+                    <span>01</span>
+                    <strong>NWP Data</strong>
+                    <small>Raw rainfall forecast</small>
+                </div>
+
+                <div>→</div>
+
+                <div>
+                    <span>02</span>
+                    <strong>Feature Extraction</strong>
+                    <small>Atmospheric variables</small>
+                </div>
+
+                <div>→</div>
+
+                <div>
+                    <span>03</span>
+                    <strong>Regime Classifier</strong>
+                    <small>AI weather regime</small>
+                </div>
+
+                <div>→</div>
+
+                <div>
+                    <span>04</span>
+                    <strong>Post Processing</strong>
+                    <small>Regime-specific correction</small>
+                </div>
+
+                <div>→</div>
+
+                <div>
+                    <span>05</span>
+                    <strong>Forecast Product</strong>
+                    <small>District rainfall</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+
+        <p>
+            © 2026 MonsoonAI | Ministry of Earth Sciences
+        </p>
+
+        <p>
+            AI/ML-based rainfall post-processing prototype
+        </p>
+
+    </footer>
+
+</main>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
+
